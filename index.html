@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZenVest — Your Complete Financial Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Gilda+Display&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ===================== TOKENS ===================== */
+:root {
+  --ink: #0e1b2e;
+  --ink2: #3d5278;
+  --muted: #7a90b0;
+  --bg: #f4f7ff;
+  --surface: rgba(255,255,255,0.72);
+  --border: rgba(255,255,255,0.88);
+  --teal: #0d9488;
+  --teal2: #14b8a6;
+  --blue: #2563eb;
+  --indigo: #4f46e5;
+  --gold: #b45309;
+  --rose: #e11d48;
+  --green: #059669;
+  --shadow: 0 8px 48px rgba(13,148,136,0.10), 0 2px 8px rgba(13,148,136,0.06);
+  --r: 22px;
+  --tr: all 0.45s cubic-bezier(0.22,1,0.36,1);
+}
+
+/* ===================== RESET ===================== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden;
+  background-image:
+    radial-gradient(ellipse 80% 60% at 10% 0%,rgba(13,148,136,0.09) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 100%,rgba(79,70,229,0.08) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 40% at 50% 50%,rgba(37,99,235,0.04) 0%,transparent 70%);
+  background-attachment:fixed;
+}
+
+/* ===================== FLOATING ORBS ===================== */
+.orb{position:fixed;border-radius:50%;filter:blur(100px);pointer-events:none;z-index:0;animation:orb 18s ease-in-out infinite alternate}
+.orb1{width:500px;height:500px;background:radial-gradient(circle,rgba(13,148,136,0.18),transparent);top:-150px;left:-100px;animation-delay:0s}
+.orb2{width:400px;height:400px;background:radial-gradient(circle,rgba(79,70,229,0.14),transparent);bottom:-100px;right:-80px;animation-delay:-7s}
+.orb3{width:280px;height:280px;background:radial-gradient(circle,rgba(37,99,235,0.12),transparent);top:40%;left:60%;animation-delay:-13s}
+@keyframes orb{from{transform:translate(0,0) scale(1)}to{transform:translate(24px,16px) scale(1.08)}}
+
+/* ===================== NAV ===================== */
+#nav{
+  position:fixed;top:0;left:0;right:0;z-index:500;
+  height:68px;display:flex;align-items:center;
+  padding:0 32px;gap:8px;
+  backdrop-filter:blur(24px) saturate(160%);
+  background:rgba(244,247,255,0.7);
+  border-bottom:1px solid rgba(13,148,136,0.12);
+  box-shadow:0 1px 24px rgba(13,148,136,0.06);
+}
+.nav-logo{
+  font-family:'Gilda Display',serif;font-size:1.55rem;color:var(--teal);
+  cursor:pointer;margin-right:12px;letter-spacing:-0.3px;flex-shrink:0;
+  transition:var(--tr);
+}
+.nav-logo:hover{color:var(--indigo)}
+.nav-logo span{color:var(--indigo)}
+.nav-scroll{display:flex;gap:3px;overflow-x:auto;flex:1;scrollbar-width:none}
+.nav-scroll::-webkit-scrollbar{display:none}
+.npill{
+  flex-shrink:0;padding:7px 14px;border-radius:50px;
+  font-size:0.76rem;font-weight:500;letter-spacing:0.3px;
+  cursor:pointer;border:none;background:transparent;
+  color:var(--muted);transition:var(--tr);font-family:'Jost',sans-serif;
+  white-space:nowrap;
+}
+.npill:hover{background:rgba(13,148,136,0.09);color:var(--teal)}
+.npill.active{background:linear-gradient(135deg,var(--teal),var(--indigo));color:#fff;box-shadow:0 3px 14px rgba(13,148,136,0.28)}
+.nav-end{display:flex;gap:10px;align-items:center;flex-shrink:0;margin-left:8px}
+.btn-nav{padding:9px 22px;border-radius:50px;border:none;cursor:pointer;font-family:'Jost',sans-serif;font-size:0.8rem;font-weight:600;transition:var(--tr)}
+.btn-teal{background:linear-gradient(135deg,var(--teal),var(--indigo));color:#fff;box-shadow:0 4px 16px rgba(13,148,136,0.25)}
+.btn-teal:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(13,148,136,0.35)}
+
+/* ===================== PAGE SYSTEM ===================== */
+#app{padding-top:68px;min-height:100vh;position:relative;z-index:1}
+.page{display:none;opacity:0;transform:translateY(18px);transition:opacity 0.5s ease,transform 0.5s ease}
+.page.active{display:block;opacity:1;transform:translateY(0)}
+.page.exit{opacity:0;transform:translateY(-14px)}
+
+/* ===================== PAGE WRAPPER ===================== */
+.pw{max-width:1080px;margin:0 auto;padding:56px 28px 80px}
+
+/* ===================== PAGE HEADER ===================== */
+.ph{margin-bottom:48px}
+.ph-tag{display:inline-flex;align-items:center;gap:7px;font-size:0.68rem;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--teal);background:rgba(13,148,136,0.08);padding:6px 16px;border-radius:20px;margin-bottom:18px;border:1px solid rgba(13,148,136,0.15)}
+.ph-tag-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);animation:pulse2 2s ease-in-out infinite}
+@keyframes pulse2{0%,100%{opacity:1}50%{opacity:0.3}}
+.ph h1{font-family:'Gilda Display',serif;font-size:clamp(2.2rem,5vw,3.8rem);line-height:1.1;color:var(--ink);letter-spacing:-0.5px;margin-bottom:12px}
+.ph h1 em{font-style:italic;color:var(--teal)}
+.ph h1 .vi{color:var(--indigo)}
+.ph p{color:var(--muted);font-size:0.97rem;line-height:1.75;max-width:520px}
+.ph-divider{width:48px;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--teal),var(--indigo));margin:20px 0 0}
+
+/* ===================== GLASS CARD ===================== */
+.card{background:var(--surface);backdrop-filter:blur(20px);border:1.5px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);padding:32px 30px;transition:var(--tr)}
+.card:hover{box-shadow:0 16px 60px rgba(13,148,136,0.13)}
+.card-sm{padding:24px 22px}
+
+/* ===================== FORMS ===================== */
+.fg{margin-bottom:18px}
+label{display:block;font-size:0.78rem;font-weight:500;color:var(--muted);margin-bottom:6px;letter-spacing:0.3px}
+input[type=number],input[type=text],select{width:100%;padding:11px 15px;border-radius:13px;border:1.5px solid rgba(13,148,136,0.14);background:rgba(255,255,255,0.8);font-family:'Jost',sans-serif;font-size:0.89rem;color:var(--ink);outline:none;transition:var(--tr)}
+input[type=range]{width:100%;padding:5px 0;cursor:pointer;accent-color:var(--teal);margin-top:4px}
+input:focus,select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(13,148,136,0.09)}
+
+/* ===================== RESULT BOX ===================== */
+.rbox{background:linear-gradient(135deg,rgba(13,148,136,0.07),rgba(79,70,229,0.07));border:1.5px solid rgba(13,148,136,0.14);border-radius:16px;padding:22px 24px;margin-top:18px}
+.rbig{font-family:'Gilda Display',serif;font-size:2.1rem;color:var(--teal);line-height:1}
+.rlabel{font-size:0.75rem;color:var(--muted);margin-top:5px;font-weight:500;letter-spacing:0.2px}
+
+/* ===================== GRID ===================== */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media(max-width:760px){.g2,.g3,.g4{grid-template-columns:1fr}#nav{padding:0 16px}.nav-logo{font-size:1.25rem}}
+
+/* ===================== TABS ===================== */
+.tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:26px}
+.tab{padding:8px 20px;border-radius:50px;font-size:0.8rem;font-weight:500;cursor:pointer;border:1.5px solid rgba(13,148,136,0.16);color:var(--muted);background:rgba(255,255,255,0.55);transition:var(--tr);font-family:'Jost',sans-serif}
+.tab.active,.tab:hover{background:linear-gradient(135deg,var(--teal),var(--indigo));color:#fff;border-color:transparent;box-shadow:0 3px 14px rgba(13,148,136,0.22)}
+
+/* ===================== BUTTONS ===================== */
+.btn{padding:11px 28px;border-radius:50px;border:none;cursor:pointer;font-family:'Jost',sans-serif;font-size:0.85rem;font-weight:600;transition:var(--tr)}
+.btn-pri{background:linear-gradient(135deg,var(--teal),var(--indigo));color:#fff;box-shadow:0 4px 18px rgba(13,148,136,0.25)}
+.btn-pri:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(13,148,136,0.35)}
+.btn-sec{background:rgba(255,255,255,0.7);color:var(--teal);border:1.5px solid rgba(13,148,136,0.22)}
+.btn-sec:hover{background:rgba(13,148,136,0.07);transform:translateY(-2px)}
+.btns-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
+
+/* ===================== PROGRESS ===================== */
+.prog-wrap{background:rgba(13,148,136,0.1);border-radius:6px;overflow:hidden;height:7px}
+.prog-bar{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--teal),var(--indigo));transition:width 0.6s ease}
+
+/* ===================== QUIZ ===================== */
+.qprog{height:4px;border-radius:4px;background:rgba(13,148,136,0.1);margin-bottom:26px;overflow:hidden}
+.qbar{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--teal),var(--indigo));transition:width 0.55s ease}
+.quiz-q{font-size:1.05rem;font-weight:500;color:var(--ink);margin-bottom:18px;line-height:1.55}
+.qopts{display:flex;flex-direction:column;gap:9px}
+.qopt{padding:12px 18px;border-radius:13px;border:1.5px solid rgba(13,148,136,0.15);background:rgba(255,255,255,0.65);cursor:pointer;font-size:0.87rem;color:var(--ink);transition:var(--tr);text-align:left;font-family:'Jost',sans-serif}
+.qopt:hover{border-color:var(--teal);background:rgba(13,148,136,0.05)}
+.qopt.sel{border-color:var(--teal);background:rgba(13,148,136,0.1);color:var(--teal);font-weight:500}
+.flex-btw{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:22px}
+.nbtn{padding:10px 24px;border-radius:50px;font-size:0.82rem;font-weight:600;cursor:pointer;border:none;transition:var(--tr);font-family:'Jost',sans-serif}
+.nn{background:linear-gradient(135deg,var(--teal),var(--indigo));color:#fff;box-shadow:0 3px 12px rgba(13,148,136,0.25)}
+.np{background:rgba(255,255,255,0.7);color:var(--muted);border:1.5px solid rgba(13,148,136,0.15)}
+.nbtn:hover{transform:translateY(-1px)}
+
+/* ===================== FLAGS ===================== */
+.flag-row{display:flex;align-items:flex-start;gap:13px;padding:14px 16px;border-radius:14px;margin-bottom:9px;transition:var(--tr)}
+.fr-red{border:1.5px solid rgba(225,29,72,0.14);background:rgba(255,248,250,0.8)}
+.fr-yellow{border:1.5px solid rgba(180,83,9,0.14);background:rgba(255,251,235,0.8)}
+.fr-blue{border:1.5px solid rgba(37,99,235,0.12);background:rgba(248,250,255,0.8)}
+.flag-row:hover{transform:translateX(5px)}
+.fi{font-size:1.2rem;flex-shrink:0;margin-top:2px}
+.ft{font-weight:600;font-size:0.87rem;margin-bottom:3px}
+.fr-red .ft{color:#be123c}
+.fr-yellow .ft{color:#92400e}
+.fr-blue .ft{color:var(--blue)}
+.fd{font-size:0.79rem;color:var(--muted);line-height:1.6}
+.fcheck{display:flex;align-items:center;gap:5px;flex-shrink:0;cursor:pointer;margin-left:auto}
+.fcheck input{accent-color:var(--rose);width:15px;height:15px;cursor:pointer}
+.fcheck span{font-size:0.72rem;color:var(--muted);white-space:nowrap}
+
+/* ===================== PERSONALITY RESULT ===================== */
+.p-res{text-align:center;padding:36px 24px;background:linear-gradient(135deg,rgba(13,148,136,0.07),rgba(79,70,229,0.09));border-radius:20px;border:1.5px solid rgba(13,148,136,0.14)}
+.p-badge{font-size:4rem;margin-bottom:12px}
+.p-type{font-family:'Gilda Display',serif;font-size:2rem;color:var(--teal);margin-bottom:10px}
+.p-desc{font-size:0.86rem;color:var(--muted);line-height:1.75;max-width:420px;margin:0 auto 18px}
+.p-recs{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.p-rec{font-size:0.72rem;font-weight:600;padding:5px 13px;border-radius:20px;background:rgba(13,148,136,0.1);color:var(--teal);border:1px solid rgba(13,148,136,0.2)}
+
+/* ===================== LEARN CARDS ===================== */
+.lcard{background:var(--surface);backdrop-filter:blur(18px);border:1.5px solid var(--border);border-radius:20px;padding:24px 20px;transition:var(--tr)}
+.lcard:hover{transform:translateY(-6px);box-shadow:0 20px 56px rgba(13,148,136,0.13)}
+.l-ico{font-size:1.9rem;margin-bottom:12px}
+.l-tit{font-family:'Gilda Display',serif;font-size:1.18rem;margin-bottom:8px}
+.l-desc{font-size:0.8rem;color:var(--muted);line-height:1.68}
+.l-tag{display:inline-block;margin-top:12px;font-size:0.68rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--teal);background:rgba(13,148,136,0.09);padding:4px 11px;border-radius:20px}
+
+/* ===================== PSYCH CARDS ===================== */
+.pscard{background:var(--surface);backdrop-filter:blur(18px);border:1.5px solid var(--border);border-radius:20px;padding:22px 18px;transition:var(--tr)}
+.pscard:hover{transform:translateY(-5px);box-shadow:0 16px 50px rgba(13,148,136,0.1)}
+.ps-e{font-size:1.8rem;margin-bottom:10px}
+.ps-t{font-weight:600;font-size:0.93rem;margin-bottom:6px}
+.ps-d{font-size:0.79rem;color:var(--muted);line-height:1.68}
+
+/* ===================== INSURANCE ===================== */
+.ins-card{background:var(--surface);backdrop-filter:blur(18px);border:1.5px solid var(--border);border-radius:20px;padding:26px 20px;transition:var(--tr)}
+.ins-card:hover{transform:translateY(-5px)}
+.ins-ico{font-size:2.1rem;margin-bottom:12px}
+.ins-tit{font-weight:600;font-size:0.97rem;margin-bottom:7px}
+.ins-desc{font-size:0.79rem;color:var(--muted);line-height:1.7;margin-bottom:12px}
+.ins-rule{font-size:0.75rem;font-weight:600;color:var(--teal);background:rgba(13,148,136,0.09);padding:5px 12px;border-radius:10px;display:inline-block}
+
+/* ===================== GOAL GRID ===================== */
+.goal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:20px}
+.gopt{padding:14px 8px;border-radius:15px;text-align:center;border:1.5px solid rgba(13,148,136,0.15);background:rgba(255,255,255,0.55);cursor:pointer;transition:var(--tr);font-size:0.78rem;color:var(--muted);font-weight:500}
+.gopt .gi{font-size:1.6rem;margin-bottom:7px}
+.gopt.active{border-color:var(--teal);background:rgba(13,148,136,0.09);color:var(--teal)}
+.gopt:hover{border-color:var(--indigo);transform:scale(1.03)}
+
+/* ===================== RETIREMENT TIMELINE ===================== */
+.ret-tl{display:flex;overflow-x:auto;padding-bottom:8px;margin-top:24px;gap:0;scrollbar-width:none}
+.ret-tl::-webkit-scrollbar{display:none}
+.ret-step{flex:1;min-width:110px;text-align:center;position:relative;padding:0 6px}
+.ret-step::after{content:'';position:absolute;top:20px;left:50%;width:100%;height:2px;background:linear-gradient(90deg,var(--teal),rgba(13,148,136,0.15));z-index:0}
+.ret-step:last-child::after{display:none}
+.ret-dot{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--indigo));color:#fff;font-size:0.85rem;font-weight:600;display:flex;align-items:center;justify-content:center;margin:0 auto 9px;position:relative;z-index:1;box-shadow:0 4px 14px rgba(13,148,136,0.28)}
+.ret-age{font-size:0.82rem;font-weight:600;color:var(--ink);margin-bottom:3px}
+.ret-val{font-size:0.72rem;color:var(--teal);font-weight:500}
+.ret-lbl{font-size:0.7rem;color:var(--muted)}
+
+/* ===================== TAX SLAB ===================== */
+.tax-slab{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-radius:12px;margin-bottom:7px;background:rgba(255,255,255,0.6);border:1.5px solid rgba(13,148,136,0.1)}
+.ts-range{font-size:0.82rem;font-weight:500}
+.ts-rate{font-size:0.84rem;font-weight:700;color:var(--teal)}
+.ts-bar{height:4px;border-radius:3px;background:linear-gradient(90deg,var(--teal),var(--indigo));margin-top:5px;transition:width 0.5s ease}
+
+/* ===================== NW ROWS ===================== */
+.nw-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.nw-row label{min-width:160px;margin:0;font-size:0.78rem}
+.nw-row input{flex:1}
+.nw-badge{font-size:0.72rem;font-weight:600;padding:4px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.ab{background:rgba(5,150,105,0.1);color:var(--green)}
+.lb{background:rgba(225,29,72,0.09);color:var(--rose)}
+
+/* ===================== PIE LEGEND ===================== */
+.pie-leg-row{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.pie-dot{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+.pie-leg-lbl{font-size:0.8rem;flex:1;color:var(--ink)}
+.pie-leg-val{font-size:0.8rem;font-weight:600;color:var(--teal)}
+
+/* ===================== HOME PAGE ===================== */
+.hero-full{min-height:calc(100vh - 68px);display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:40px 24px}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;font-size:0.7rem;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--teal);background:rgba(13,148,136,0.09);padding:8px 18px;border-radius:20px;margin-bottom:26px;border:1px solid rgba(13,148,136,0.16)}
+.hero-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);animation:pulse2 2s ease-in-out infinite}
+.hero-full h1{font-family:'Gilda Display',serif;font-size:clamp(3rem,8vw,6rem);line-height:1.06;letter-spacing:-1.5px;margin-bottom:22px}
+.hero-full h1 em{font-style:italic;color:var(--teal)}
+.hero-full h1 .vi{color:var(--indigo)}
+.hero-full .sub{font-size:1.05rem;color:var(--muted);max-width:540px;line-height:1.8;margin:0 auto 40px}
+.hero-ctas{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:60px}
+.hero-btn-main{padding:15px 38px;border-radius:50px;background:linear-gradient(135deg,var(--teal),var(--indigo));color:#fff;font-family:'Jost',sans-serif;font-size:0.95rem;font-weight:600;border:none;cursor:pointer;box-shadow:0 6px 28px rgba(13,148,136,0.3);transition:var(--tr)}
+.hero-btn-main:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(13,148,136,0.38)}
+.hero-btn-out{padding:15px 38px;border-radius:50px;background:rgba(255,255,255,0.7);color:var(--teal);font-family:'Jost',sans-serif;font-size:0.95rem;font-weight:600;border:1.5px solid rgba(13,148,136,0.25);cursor:pointer;backdrop-filter:blur(10px);transition:var(--tr)}
+.hero-btn-out:hover{background:rgba(13,148,136,0.07);transform:translateY(-3px)}
+
+/* FEATURE CARDS GRID */
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;width:100%;max-width:960px}
+.feat-card{background:var(--surface);backdrop-filter:blur(20px);border:1.5px solid var(--border);border-radius:20px;padding:24px 22px;cursor:pointer;transition:var(--tr);text-align:left}
+.feat-card:hover{transform:translateY(-6px);box-shadow:0 20px 56px rgba(13,148,136,0.14);border-color:rgba(13,148,136,0.28)}
+.feat-ico{font-size:2rem;margin-bottom:12px}
+.feat-tit{font-family:'Gilda Display',serif;font-size:1.1rem;margin-bottom:6px;color:var(--ink)}
+.feat-desc{font-size:0.78rem;color:var(--muted);line-height:1.6}
+.feat-arrow{margin-top:14px;font-size:0.78rem;font-weight:600;color:var(--teal);display:flex;align-items:center;gap:5px}
+
+/* SCROLL CUE */
+.scroll-cue{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--muted);font-size:0.67rem;letter-spacing:2px;text-transform:uppercase}
+.scroll-line{width:1px;height:36px;background:linear-gradient(to bottom,var(--teal),transparent);animation:sline 1.9s ease-in-out infinite}
+@keyframes sline{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* ===================== BREADCRUMB ===================== */
+.bc{display:flex;align-items:center;gap:8px;margin-bottom:28px;font-size:0.78rem;color:var(--muted)}
+.bc-home{cursor:pointer;color:var(--teal);transition:var(--tr)}
+.bc-home:hover{color:var(--indigo)}
+.bc-sep{color:var(--muted);opacity:0.5}
+.bc-cur{color:var(--ink);font-weight:500}
+
+/* ===================== PAGE NAV FOOTER ===================== */
+.page-nav{display:flex;justify-content:space-between;align-items:center;margin-top:52px;padding-top:32px;border-top:1px solid rgba(13,148,136,0.1);flex-wrap:wrap;gap:12px}
+.pn-btn{display:flex;align-items:center;gap:8px;padding:12px 22px;border-radius:14px;cursor:pointer;border:1.5px solid rgba(13,148,136,0.16);background:rgba(255,255,255,0.6);font-family:'Jost',sans-serif;font-size:0.82rem;font-weight:500;color:var(--ink2);transition:var(--tr)}
+.pn-btn:hover{border-color:var(--teal);background:rgba(13,148,136,0.07);color:var(--teal)}
+.pn-btn .arrow{font-size:1rem}
+.pn-info{text-align:center}
+.pn-count{font-size:0.72rem;color:var(--muted);margin-bottom:3px}
+.pn-dots{display:flex;gap:6px;justify-content:center}
+.pn-dot{width:6px;height:6px;border-radius:50%;background:rgba(13,148,136,0.2);transition:var(--tr)}
+.pn-dot.on{background:var(--teal);width:18px;border-radius:3px}
+
+/* ===================== CHIPS ===================== */
+.chip{display:inline-block;font-size:0.7rem;font-weight:600;padding:4px 10px;border-radius:20px;margin:3px}
+.ch-teal{background:rgba(13,148,136,0.1);color:var(--teal)}
+.ch-ind{background:rgba(79,70,229,0.1);color:var(--indigo)}
+.ch-gold{background:rgba(180,83,9,0.1);color:var(--gold)}
+.ch-green{background:rgba(5,150,105,0.1);color:var(--green)}
+
+/* ===================== MISC ===================== */
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fadeUp 0.4s ease}
+</style>
+</head>
+<body>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<!-- ═══════════════════ NAV ═══════════════════ -->
+<nav id="nav">
+  <div class="nav-logo" onclick="goPage('home')">Zen<span>Vest</span></div>
+  <div class="nav-scroll" id="navScroll">
+    <button class="npill active" onclick="goPage('home')" data-page="home">Home</button>
+    <button class="npill" onclick="goPage('goal')" data-page="goal">Goal Planner</button>
+    <button class="npill" onclick="goPage('networth')" data-page="networth">Net Worth</button>
+    <button class="npill" onclick="goPage('budget')" data-page="budget">Budget</button>
+    <button class="npill" onclick="goPage('tax')" data-page="tax">Tax</button>
+    <button class="npill" onclick="goPage('retirement')" data-page="retirement">Retirement</button>
+    <button class="npill" onclick="goPage('insurance')" data-page="insurance">Insurance</button>
+    <button class="npill" onclick="goPage('personality')" data-page="personality">Personality</button>
+    <button class="npill" onclick="goPage('risk')" data-page="risk">Risk Flags</button>
+    <button class="npill" onclick="goPage('simulator')" data-page="simulator">Simulator</button>
+    <button class="npill" onclick="goPage('calculator')" data-page="calculator">Calculator</button>
+    <button class="npill" onclick="goPage('learn')" data-page="learn">Learn</button>
+    <button class="npill" onclick="goPage('psychology')" data-page="psychology">Psychology</button>
+  </div>
+  <div class="nav-end">
+    <button class="btn-nav btn-teal" onclick="goPage('goal')">Start Planning</button>
+  </div>
+</nav>
+
+<div id="app">
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE: HOME
+═══════════════════════════════════════════════════ -->
+<div class="page active" id="p-home">
+  <div style="position:relative">
+    <div class="hero-full">
+      <div class="hero-tag"><div class="hero-dot"></div>Complete Financial Platform</div>
+      <h1>Invest with <em>clarity</em>,<br>grow with <span class="vi">purpose</span></h1>
+      <p class="sub">From budgeting and tax planning to retirement and risk management — every financial tool you need, beautifully unified in one place.</p>
+      <div class="hero-ctas">
+        <button class="hero-btn-main" onclick="goPage('goal')">Start Planning →</button>
+        <button class="hero-btn-out" onclick="goPage('learn')">Explore Tools</button>
+      </div>
+      <div class="feat-grid" id="featGrid"></div>
+      <div class="scroll-cue" style="position:relative;bottom:auto;left:auto;transform:none;margin-top:40px"><div class="scroll-line"></div>explore tools</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE: GOAL PLANNER
+═══════════════════════════════════════════════════ -->
+<div class="page" id="p-goal">
+  <div class="pw">
+    <div class="bc"><span class="bc-home" onclick="goPage('home')">Home</span><span class="bc-sep">›</span><span class="bc-cur">Goal Planner</span></div>
+    <div class="ph">
+      <div class="ph-tag"><div class="ph-tag-dot"></div>Tool 01 / 12</div>
+      <h1>Life Goal <em>Investment</em> Planner</h1>
+      <p>Define your financial goal, set a timeline, and receive an exact investment roadmap to achieve it.</p>
+      <div class="ph-divider"></div>
+    </div>
+    <div class="card">
+      <label style="margin-bottom:11px;display:block">Choose Your Goal</label>
+      <div class="goal-grid">
+        <div class="gopt active" onclick="selGoal(this)"><div class="gi">🏠</div>Buy a Home</div>
+        <div class="gopt" onclick="selGoal(this)"><div class="gi">🎓</div>Education</div>
+        <div class="gopt" onclick="selGoal(this)"><div class="gi">🌴</div>Retirement</div>
+        <div class="gopt" onclick="selGoal(this)"><div class="gi">✈️</div>Travel</div>
+        <div class="gopt" onclick="selGoal(this)"><div class="gi">🚀</div>Business</div>
+        <div class="gopt" onclick="selGoal(this)"><div class="gi">💍</div>Wedding</div>
+        <div class="gopt" onclick="selGoal(this)"><div class="gi">🚗</div>Buy a Car</div>
+        <div class="gopt" onclick="selGoal(this)"><div class="gi">🛡️</div>Emergency Fund</div>
+      </div>
+      <div class="g2">
+        <div>
+          <div class="fg"><label>Target Amount (₹)</label><input type="number" id="gAmt" value="5000000" oninput="calcGoal()"></div>
+          <div class="fg"><label>Time Horizon (years)</label><input type="number" id="gYrs" value="10" min="1" max="50" oninput="calcGoal()"></div>
+        </div>
+        <div>
+          <div class="fg"><label>Expected Annual Return (%)</label><input type="number" id="gRet" value="12" oninput="calcGoal()"></div>
+          <div class="fg"><label>Current Savings Toward Goal (₹)</label><input type="number" id="gSav" value="200000" oninput="calcGoal()"></div>
+        </div>
+      </div>
+      <div class="rbox">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:20px">
+          <div><div class="rbig" id="gSIP">₹0</div><div class="rlabel">Monthly SIP Required</div></div>
+          <div><div class="rbig" id="gLump" style="color:var(--indigo)">₹0</div><div class="rlabel">Or Lump Sum Today</div></div>
+          <div><div class="rbig" id="gTot" style="color:var(--green)">₹0</div><div class="rlabel">Goal Value</div></div>
+          <div><div class="rbig" id="gGap" style="color:var(--gold);font-size:1.5rem">₹0</div><div class="rlabel">Savings Gap</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="page-nav" id="pn-goal"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE: NET WORTH
+═══════════════════════════════════════════════════ -->
+<div class="page" id="p-networth">
+  <div class="pw">
+    <div class="bc"><span class="bc-home" onclick="goPage('home')">Home</span><span class="bc-sep">›</span><span class="bc-cur">Net Worth</span></div>
+    <div class="ph">
+      <div class="ph-tag"><div class="ph-tag-dot"></div>Tool 02 / 12</div>
+      <h1>Net Worth <em>Calculator</em></h1>
+      <p>Your true financial position: Assets minus Liabilities. Know exactly where you stand today.</p>
+      <div class="ph-divider"></div>
+    </div>
+    <div class="card">
+      <div class="g2">
+        <div>
+          <div style="font-weight:600;font-size:0.85rem;color:var(--green);margin-bottom:14px">🟢 ASSETS</div>
+          <div class="nw-row"><label>Cash & Savings</label><input type="number" id="a1" value="500000" oninput="calcNW()"><span class="nw-badge ab">Asset</span></div>
+          <div class="nw-row"><label>Investments (MF/Stocks)</label><input type="number" id="a2" value="800000" oninput="calcNW()"><span class="nw-badge ab">Asset</span></div>
+          <div class="nw-row"><label>Real Estate Value</label><input type="number" id="a3" value="5000000" oninput="calcNW()"><span class="nw-badge ab">Asset</span></div>
+          <div class="nw-row"><label>Gold / Jewellery</label><input type="number" id="a4" value="300000" oninput="calcNW()"><span class="nw-badge ab">Asset</span></div>
+          <div class="nw-row"><label>Vehicle Value</label><input type="number" id="a5" value="600000" oninput="calcNW()"><span class="nw-badge ab">Asset</span></div>
+          <div class="nw-row"><label>Other Assets</label><input type="number" id="a6" value="0" oninput="calcNW()"><span class="nw-badge ab">Asset</span></div>
+        </div>
+        <div>
+          <div style="font-weight:600;font-size:0.85rem;color:var(--rose);margin-bottom:14px">🔴 LIABILITIES</div>
+          <div class="nw-row"><label>Home Loan Outstanding</label><input type="number" id="l1" value="3000000" oninput="calcNW()"><span class="nw-badge lb">Liability</span></div>
+          <div class="nw-row"><label>Car Loan</label><input type="number" id="l2" value="400000" oninput="calcNW()"><span class="nw-badge lb">Liability</span></div>
+          <div class="nw-row"><label>Personal Loan</label><input type="number" id="l3" value="100000" oninput="calcNW()"><span class="nw-badge lb">Liability</span></div>
+          <div class="nw-row"><label>Credit Card Dues</label><input type="number" id="l4" value="50000" oninput="calcNW()"><span class="nw-badge lb">Liability</span></div>
+          <div class="nw-row"><label>Other Loans</label><input type="number" id="l5" value="0" oninput="calcNW()"><span class="nw-badge lb">Liability</span></div>
+        </div>
+      </div>
+      <div class="rbox" style="margin-top:22px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:20px">
+          <div><div class="rbig" id="nwA" style="color:var(--green)">₹0</div><div class="rlabel">Total Assets</div></div>
+          <div><div class="rbig" id="nwL" style="color:var(--rose)">₹0</div><div class="rlabel">Total Liabilities</div></div>
+          <div><div class="rbig" id="nwN">₹0</div><div class="rlabel">Net Worth</div></div>
+          <div><div class="rbig" id="nwR" style="color:var(--gold);font-size:1.5rem">0%</div><div class="rlabel">Solvency Ratio</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="page-nav" id="pn-networth"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE: BUDGET
+═══════════════════════════════════════════════════ -->
+<div class="page" id="p-budget">
+  <div class="pw">
+    <div class="bc"><span class="bc-home" onclick="goPage('home')">Home</span><span class="bc-sep">›</span><span class="bc-cur">Budget Planner</span></div>
+    <div class="ph">
+      <div class="ph-tag"><div class="ph-tag-dot"></div>Tool 03 / 12</div>
+      <h1>Budget <em>Planner</em></h1>
+      <p>The 50/30/20 framework: 50% needs, 30% wants, 20% savings. Enter your income to generate your plan.</p>
+      <div class="ph-divider"></div>
+    </div>
+    <div class="card">
+      <div class="g2">
+        <div>
+          <div class="fg"><label>Monthly Take-Home Income (₹)</label><input type="number" id="budInc" value="80000" oninput="calcBudget()"></div>
+          <div id="budBreak"></div>
+          <div class="rbox" id="budRes"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px">
+          <canvas id="budPie" width="200" height="200"></canvas>
+          <div id="pieLeg"></div>
+        </div>
+      </div>
+    </div>
+    <div class="page-nav" id="pn-budget"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE: TAX
+═══════════════════════════════════════════════════ -->
+<div class="page" id="p-tax">
+  <div class="pw">
+    <div class="bc"><span class="bc-home" onclick="goPage('home')">Home</span><span class="bc-sep">›</span><span class="bc-cur">Tax Calculator</span></div>
+    <div class="ph">
+      <div class="ph-tag"><div class="ph-tag-dot"></div>Tool 04 / 12</div>
+      <h1>Income Tax <em>Calculator</em></h1>
+      <p>Compare Old vs New regime (FY 2024–25) and instantly see which saves you more money.</p>
+      <div class="ph-divider"></div>
+    </div>
+    <div class="card">
+      <div class="g2">
+        <div>
+          <div class="fg"><label>Annual Gross Income (₹)</label><input type="number" id="tInc" value="1200000" oninput="calcTax()"></div>
+          <div class="fg"><label>HRA Exemption (₹)</label><input type="number" id="tHRA" value="120000" oninput="calcTax()"></div>
+          <div class="fg"><label>80C Investments (max ₹1.5L)</label><input type="number" id="t80c" value="150000" oninput="calcTax()"></div>
+          <div class="fg"><label>80D Health Premium (₹)</label><input type="number" id="t80d" value="25000" oninput="calcTax()"></div>
+          <div class="fg"><label>Home Loan Interest (₹)</label><input type="number" id="tHL" value="200000" oninput="calcTax()"></div>
+          <div class="fg"><label>NPS 80CCD(1B) (max ₹50k)</label><input type="number" id="tNPS" value="50000" oninput="calcTax()"></div>
+        </div>
+        <div>
+          <div id="taxSlabs" style="margin-bottom:16px"></div>
+          <div class="rbox">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+              <div><div class="rbig" id="tOld" style="color:var(--rose)">₹0</div><div class="rlabel">Tax (Old Regime)</div></div>
+              <div><div class="rbig" id="tNew" style="color:var(--teal)">₹0</div><div class="rlabel">Tax (New Regime)</div></div>
+              <div><div class="rbig" id="tSave" style="color:var(--green);font-size:1.4rem">₹0</div><div class="rlabel">You Save</div></div>
+              <div><div class="rbig" id="tBest" style="color:var(--indigo);font-size:1.3rem">—</div><div class="rlabel">Best Regime</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="page-nav" id="pn-tax"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE: RETIREMENT
+═══════════════════════════════════════════════════ -->
+<div class="page" id="p-retirement">
+  <div class="pw">
+    <div class="bc"><span class="bc-home" onclick="goPage('home')">Home</span><span class="bc-sep">›</span><span class="bc-cur">Retirement Planner</span></div>
+    <div class="ph">
+      <div class="ph-tag"><div class="ph-tag-dot"></div>Tool 05 / 12</div>
+      <h1>Retirement <em>Planner</em></h1>
+      <p>Calculate your exact retirement corpus accounting for inflation, life expectancy, and lifestyle.</p>
+      <div class="ph-divider"></div>
+    </div>
+    <div class="card">
+      <div class="g2">
+        <div>
+          <div class="fg"><label>Current Age</label><input type="number" id="rAge" value="30" oninput="calcRet()"></div>
+          <div class="fg"><label>Retirement Age</label><input type="number" id="rRet" value="60" oninput="calcRet()"></div>
+          <div class="fg"><label>Life Expectancy</label><input type="number" id="rLife" value="85" oninput="calcRet()"></div>
+          <div class="fg"><label>Monthly Expenses Today (₹)</label><input type="number" id="rExp" value="50000" oninput="calcRet()"></div>
+          <div class="fg"><label>Inflation Rate (%)</label><input type="number" id="rInf" value="6" oninput="calcRet()"></div>
+          <div class="fg"><label>Pre-retirement Return (%)</label><input type="number" id="rGro" value="12" oninput="calcRet()"></div>
+          <div class="fg"><label>Post-retirement Return (%)</label><input type="number" id="rPos" value="7" oninput="calcRet()"></div>
+          <div class="fg"><label>Current Retirement Savings (₹)</label><input type="number" id="rSav" value="500000" oninput="calcRet()"></div>
+        </div>
+        <div>
+          <div class="rbox" style="height:auto">
+            <div style="display:grid;gap:16px">
+              <div><div class="rbig" id="rCorpus">₹0</div><div class="rlabel">Corpus Required at Retirement</div></div>
+              <div><div class="rbig" id="rSIP" style="color:var(--indigo)">₹0</div><div class="rlabel">Monthly SIP Required</div></div>
+              <div><div class="rbig" id="rIncome" style="color:var(--green);font-size:1.4rem">₹0</div><div class="rlabel">Monthly Income at Retirement</div></div>
+              <div><div class="rbig" id="rYrs" style="color:var(--gold);font-size:1.4rem">0 yrs</div><div class="rlabel">Years Left to Invest</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ret-tl" id="retTL"></div>
+    </div>
+    <div class="page-nav" id="pn-retirement"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE: INSURANCE
+═══════════════════════════════════════════════════ -->
+<div class="page" id="p-insurance">
+  <div class="pw">
+    <div class="bc"><span class="bc-home" onclick="goPage('home')">Home</span><span class="bc-sep">›</span><span class="bc-cur">Insurance Planner</span></div>
+    <div class="ph">
+      <div class="ph-tag"><div class="ph-tag-dot"></div>Tool 06 / 12</div>
+      <h1>Insurance Coverage <em>Planner</em></h1>
+      <p>Calculate exactly how much life and health coverage you need — not what agents push.</p>
+      <div class="ph-divider"></div>
+    </div>
+    <div class="g2" style="margin-bottom:22px">
+      <div class="card card-sm">
+        <div style="font-weight:600;font-size:0.87rem;margin-bottom:14px">💡 Life Insurance Calculator</div>
+        <div class="fg"><label>Annual Income (₹)</label><input type="number" id="liInc" value="1200000" oninput="calcIns()"></div>
+        <div class="fg"><label>Years to Retirement</label><input type="number" id="liYrs" value="25" oninput="calcIns()"></div>
+        <div class="fg"><label>Outstanding Loans (₹)</label><input type="number" id="liLoan" value="3000000" oninput="calcIns()"></div>
+        <div class="fg"><label>Future Goals to Fund (₹)</label><input type="number" id="liGoal" value="2000000" oninput="calcIns()"></div>
+        <div class="fg"><label>Existing Life Cover (₹)</label><input type="number" id="liEx" value="1000000" oninput="calcIns()"></div>
+        <div class="rbox"><div class="rbig" id="liCover">₹0</div><div class="rlabel">Recommended Term Plan Cover</div><div id="liNote" style="margin-top:10px;font-size:0.78rem;color:var(--muted)"></div></div>
+      </div>
+      <div class="card card-sm">
+        <div style="font-weight:600;font-size:0.87rem;margin-bottom:14px">❤️ Health Insurance Calculator</div>
+        <div class="fg"><label>City Tier</label><select id="hiCity" onchange="calcIns()"><option value="1">Metro (Mumbai/Delhi/Bangalore)</option><option value="2">Tier-2 City</option><option value="3">Tier-3 / Rural</option></select></div>
+        <div class="fg"><label>Family Members</label><input type="number" id="hiMem" value="4" oninput="calcIns()"></div>
+        <div class="fg"><label>Age of Oldest Member</label><input type="number" id="hiAge" value="55" oninput="calcIns()"></div>
+        <div class="fg"><label>Existing Health Cover (₹)</label><input type="number" id="hiEx" value="500000" oninput="calcIns()"></div>
+        <div class="rbox"><div class="rbig" id="hiCover" style="color:var(--indigo)">₹0</div><div class="rlabel">Recommended Health Cover</div><div id="hiNote" style="margin-top:10px;font-size:0.78rem;color:var(--muted)"></div></div>
+      </div>
+    </div>
+    <div class="g3">
+      <div class="ins-card"><div class="ins-ico">🛡️</div><div class="ins-tit">Term Life Insurance</div><div class="ins-desc">Pure protection at the lowest cost. If you die, your family gets the full sum assured. No investment component — that's exactly why it's so affordable and powerful.</div><div class="ins-rule">Rule: 15–20× Annual Income</div></div>
+      <div class="ins-card"><div class="ins-ico">🏥</div><div class="ins-tit">Health Insurance</div><div class="ins-desc">Medical inflation runs at 12%+ yearly in India. One hospitalisation can destroy years of savings. A family floater of ₹10–25L is non-negotiable for financial security.</div><div class="ins-rule">Rule: Min ₹10L per family</div></div>
+      <div class="ins-card"><div class="ins-ico">🏠</div><div class="ins-tit">Asset Insurance</div><div class="ins-desc">Comprehensive motor insurance, home insurance for property owners, and travel insurance for frequent flyers. Protect physical assets from damage, theft, or natural events.</div><div class="ins-rule">Rule: Always full coverage</div></div>
+    </div>
+    <div class="page-nav" id="pn-insurance"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE: PERSONALITY TEST
+═══════════════════════════════════════════════════ -->
+<div class="page" id="p-personality">
+  <div class="pw">
+    <div class="bc"><span class="bc-home" onclick="goPage('home')">Home</span><span class="bc-sep">›</span><span class="bc-cur">Personality Test</span></div>
+    <div class="ph">
+      <div class="ph-tag"><div class="ph-tag-dot"></div>Tool 07 / 12</div>
+      <h1>Investment <em>Personality</em> Test</h1>
+      <p>7 behavioural questions to discover your investor archetype and receive a personalised portfolio strategy.</p>
+      <div class="ph-divider"></div>
+    </div>
+    <div class="card" id="quizWrap">
+      <div class="qprog"><div class="qbar" id="qBar" style="width:0%"></div></div>
+      <div id="qContent"></div>
+      <div class="flex-btw" id="qNav">
+        <button class="nbtn np" onclick="qPrev()" id="qPrevBtn" style="display:none">← Back</button>
+        <button class="nbtn nn" onclick="qNext()" id="qNextBtn">Next →</button>
+      </div>
+    </div>
+    <div class="page-nav" id="pn-personality"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE: RISK FLAGS
+═══════════════════════════════════════════════════ -->
+<div class="page" id="p-risk">
+  <div class="pw">
+    <div class="bc"><span class="bc-home" onclick="goPage('home')">Home</span><span class="bc-sep">›</span><span class="bc-cur">Risk Flags</span></div>
+    <div class="ph">
+      <div class="ph-tag"><div class="ph-tag-dot"></div>Tool 08 / 12</div>
+      <h1>Risk Red Flag <em>Detector</em></h1>
+      <p>10 critical financial risk factors. Check which apply to you and get your financial health score.</p>
+      <div class="ph-divider"></div>
+    </div>
+    <div class="card">
+      <div id="flagsList"></div>
+      <div class="rbox">
+        <div class="rbig" id="flagScore">0 / 10</div>
+        <div class="rlabel" id="flagMsg">Check your situation above</div>
+        <div style="margin-top:12px" id="flagBar"></div>
+      </div>
+    </div>
+    <div class="page-nav" id="pn-risk"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE: SIMULATOR
+═══════════════════════════════════════════════════ -->
+<div class="page" id="p-simulator">
+  <div class="pw">
+    <div class="bc"><span class="bc-home" onclick="goPage('home')">Home</span><span class="bc-sep">›</span><span class="bc-cur">Investment Simulator</span></div>
+    <div class="ph">
+      <div class="ph-tag"><div class="ph-tag-dot"></div>Tool 09 / 12</div>
+      <h1>Investment <em>Simulator</em></h1>
+      <p>Watch your wealth grow across 5 asset classes. Understand the true cost of not investing early.</p>
+      <div class="ph-divider"></div>
+    </div>
+    <div class="card">
+      <div class="g2">
+        <div>
+          <div class="fg"><label>Initial Investment (₹)</label><input type="number" id="simI" value="200000" oninput="runSim()"></div>
+          <div class="fg"><label>Monthly Addition (₹)</label><input type="number" id="simM" value="15000" oninput="runSim()"></div>
+          <div class="fg"><label>Duration: <span id="simYL">20</span> years</label><input type="range" id="simY" min="1" max="40" value="20" oninput="runSim()"></div>
+        </div>
+        <div>
+          <div class="rbox" style="height:100%;display:flex;flex-direction:column;gap:11px">
+            <div><div class="rbig" id="sSA" style="color:#94a3b8;font-size:1.3rem">₹0</div><div class="rlabel">Savings Account (3.5%)</div></div>
+            <div><div class="rbig" id="sFD" style="color:#64748b;font-size:1.3rem">₹0</div><div class="rlabel">Fixed Deposit (6.8%)</div></div>
+            <div><div class="rbig" id="sDb" style="color:#2980b9;font-size:1.3rem">₹0</div><div class="rlabel">Debt Funds (8.5%)</div></div>
+            <div><div class="rbig" id="sHy" style="color:var(--indigo);font-size:1.3rem">₹0</div><div class="rlabel">Hybrid Funds (11%)</div></div>
+            <div><div class="rbig" id="sEq" style="color:var(--teal)">₹0</div><div class="rlabel">Equity / Nifty (14%)</div></div>
+          </div>
+        </div>
+      </div>
+      <canvas id="simCanvas" height="200" style="margin-top:22px;border-radius:13px"></canvas>
+    </div>
+    <div class="page-nav" id="pn-simulator"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE: CALCULATOR
+═══════════════════════════════════════════════════ -->
+<div class="page" id="p-calculator">
+  <div class="pw">
+    <div class="bc"><span class="bc-home" onclick="goPage('home')">Home</span><span class="bc-sep">›</span><span class="bc-cur">Calculator</span></div>
+    <div class="ph">
+      <div class="ph-tag"><div class="ph-tag-dot"></div>Tool 10 / 12</div>
+      <h1>Financial <em>Calculator</em></h1>
+      <p>SIP with step-up, compound interest, lump sum, EMI, and CAGR — five calculators in one.</p>
+      <div class="ph-divider"></div>
+    </div>
+    <div class="tabs" id="calcTabs">
+      <div class="tab active" onclick="switchCalc('sip',this)">SIP</div>
+      <div class="tab" onclick="switchCalc('compound',this)">Compound Interest</div>
+      <div class="tab" onclick="switchCalc('lumpsum',this)">Lump Sum</div>
+      <div class="tab" onclick="switchCalc('emi',this)">EMI / Loan</div>
+      <div class="tab" onclick="switchCalc('cagr',this)">CAGR</div>
+    </div>
+    <div id="calcContent"></div>
+    <div class="page-nav" id="pn-calculator"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE: LEARN
+═══════════════════════════════════════════════════ -->
+<div class="page" id="p-learn">
+  <div class="pw">
+    <div class="bc"><span class="bc-home" onclick="goPage('home')">Home</span><span class="bc-sep">›</span><span class="bc-cur">Learning Library</span></div>
+    <div class="ph">
+      <div class="ph-tag"><div class="ph-tag-dot"></div>Module 11 / 12</div>
+      <h1>Complete <em>Learning</em> Library</h1>
+      <p>From absolute basics to advanced strategies — everything you need to become a confident, informed investor.</p>
+      <div class="ph-divider"></div>
+    </div>
+    <div class="tabs" id="learnTabs">
+      <div class="tab active" onclick="switchLearn(0,this)">Basics</div>
+      <div class="tab" onclick="switchLearn(1,this)">Mutual Funds</div>
+      <div class="tab" onclick="switchLearn(2,this)">Stocks</div>
+      <div class="tab" onclick="switchLearn(3,this)">Real Estate</div>
+      <div class="tab" onclick="switchLearn(4,this)">Gold</div>
+      <div class="tab" onclick="switchLearn(5,this)">Crypto</div>
+      <div class="tab" onclick="switchLearn(6,this)">Advanced</div>
+    </div>
+    <div id="learnContent"></div>
+    <div class="page-nav" id="pn-learn"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE: PSYCHOLOGY
+═══════════════════════════════════════════════════ -->
+<div class="page" id="p-psychology">
+  <div class="pw">
+    <div class="bc"><span class="bc-home" onclick="goPage('home')">Home</span><span class="bc-sep">›</span><span class="bc-cur">Financial Psychology</span></div>
+    <div class="ph">
+      <div class="ph-tag"><div class="ph-tag-dot"></div>Module 12 / 12</div>
+      <h1>Financial <em>Psychology</em></h1>
+      <p>Your emotions and cognitive biases are your biggest investing risks. Learn to identify and outsmart them.</p>
+      <div class="ph-divider"></div>
+    </div>
+    <div class="g3" id="psychGrid"></div>
+    <div class="page-nav" id="pn-psychology"></div>
+  </div>
+</div>
+
+</div><!-- end #app -->
+
+<script>
+// ═══════════════════════════════════════════════════
+// PAGE SYSTEM
+// ═══════════════════════════════════════════════════
+const PAGES = ['home','goal','networth','budget','tax','retirement','insurance','personality','risk','simulator','calculator','learn','psychology'];
+const PAGE_NAMES = {home:'Home',goal:'Goal Planner',networth:'Net Worth',budget:'Budget',tax:'Tax Calculator',retirement:'Retirement',insurance:'Insurance',personality:'Personality Test',risk:'Risk Flags',simulator:'Simulator',calculator:'Calculator',learn:'Learn',psychology:'Psychology'};
+
+let currentPage = 'home';
+
+function goPage(id) {
+  if(id === currentPage) return;
+  const cur = document.getElementById('p-' + currentPage);
+  const next = document.getElementById('p-' + id);
+  if(!next) return;
+  cur.classList.add('exit');
+  setTimeout(() => {
+    cur.classList.remove('active','exit');
+    cur.style.display = 'none';
+    next.style.display = 'block';
+    setTimeout(() => { next.classList.add('active'); }, 10);
+    window.scrollTo({top:0, behavior:'smooth'});
+    currentPage = id;
+    // update nav pills
+    document.querySelectorAll('.npill').forEach(p => p.classList.toggle('active', p.dataset.page === id));
+    // init page
+    initPage(id);
+  }, 300);
+}
+
+function initPage(id) {
+  if(id==='goal') calcGoal();
+  else if(id==='networth') calcNW();
+  else if(id==='budget') calcBudget();
+  else if(id==='tax') calcTax();
+  else if(id==='retirement') calcRet();
+  else if(id==='insurance') calcIns();
+  else if(id==='personality') renderQ();
+  else if(id==='risk') scoreFlags();
+  else if(id==='simulator') { runSim(); setTimeout(()=>runSim(),100); }
+  else if(id==='calculator') renderCalc('sip');
+  else if(id==='learn') switchLearn(0, document.querySelector('#learnTabs .tab'));
+  else if(id==='psychology') renderPsych();
+}
+
+function buildPageNav(id) {
+  const idx = PAGES.indexOf(id);
+  const prev = idx > 0 ? PAGES[idx-1] : null;
+  const next = idx < PAGES.length-1 ? PAGES[idx+1] : null;
+  const dots = PAGES.map((p,i) => `<div class="pn-dot${i===idx?' on':''}"></div>`).join('');
+  return `
+    ${prev ? `<button class="pn-btn" onclick="goPage('${prev}')"><span class="arrow">←</span>${PAGE_NAMES[prev]}</button>` : '<div></div>'}
+    <div class="pn-info">
+      <div class="pn-count">${idx+1} / ${PAGES.length}</div>
+      <div class="pn-dots">${dots}</div>
+    </div>
+    ${next && next!=='home' ? `<button class="pn-btn" onclick="goPage('${next}')">${PAGE_NAMES[next]}<span class="arrow">→</span></button>` : '<div></div>'}
+  `;
+}
+
+// Build page navs
+PAGES.forEach(id => {
+  const el = document.getElementById('pn-' + id);
+  if(el) el.innerHTML = buildPageNav(id);
+});
+
+// ═══════════════════════════════════════════════════
+// HOME FEATURE GRID
+// ═══════════════════════════════════════════════════
+const features = [
+  {ico:'🎯',page:'goal',tit:'Goal Planner',desc:'Calculate exactly what you need to invest to hit any financial goal.'},
+  {ico:'💎',page:'networth',tit:'Net Worth',desc:'Assets minus liabilities — your true financial position.'},
+  {ico:'📊',page:'budget',tit:'Budget Planner',desc:'50/30/20 framework with visual breakdown and charts.'},
+  {ico:'🧾',page:'tax',tit:'Tax Calculator',desc:'Old vs New regime comparison with instant recommendation.'},
+  {ico:'🌴',page:'retirement',tit:'Retirement Planner',desc:'Full corpus calculation with inflation-adjusted milestones.'},
+  {ico:'🛡️',page:'insurance',tit:'Insurance Planner',desc:'Calculate your exact life and health coverage needs.'},
+  {ico:'🧠',page:'personality',tit:'Investor Personality',desc:'Discover your archetype and get a portfolio strategy.'},
+  {ico:'🚩',page:'risk',tit:'Risk Flags',desc:'10 financial red flags — check your health score.'},
+  {ico:'📈',page:'simulator',tit:'Investment Simulator',desc:'5 asset classes, live chart, real growth projections.'},
+  {ico:'🔢',page:'calculator',tit:'5-in-1 Calculator',desc:'SIP, compound, lump sum, EMI, and CAGR.'},
+  {ico:'📚',page:'learn',tit:'Learning Library',desc:'From basics to advanced investing across 7 asset classes.'},
+  {ico:'🪞',page:'psychology',tit:'Psychology',desc:'9 cognitive biases that destroy investor returns.'},
+];
+document.getElementById('featGrid').innerHTML = features.map(f=>`
+  <div class="feat-card" onclick="goPage('${f.page}')">
+    <div class="feat-ico">${f.ico}</div>
+    <div class="feat-tit">${f.tit}</div>
+    <div class="feat-desc">${f.desc}</div>
+    <div class="feat-arrow">Explore <span>→</span></div>
+  </div>`).join('');
+
+// ═══════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════
+const fmt = n => Math.round(n).toLocaleString('en-IN');
+function fmtCr(n){
+  if(n>=10000000) return (n/10000000).toFixed(2)+' Cr';
+  if(n>=100000) return (n/100000).toFixed(2)+' L';
+  return fmt(n);
+}
+function fmtCrS(n){
+  if(n>=10000000) return '₹'+(n/10000000).toFixed(0)+'Cr';
+  if(n>=100000) return '₹'+(n/100000).toFixed(0)+'L';
+  return '₹'+Math.round(n/1000)+'K';
+}
+function setT(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
+
+// ═══════════════════════════════════════════════════
+// GOAL PLANNER
+// ═══════════════════════════════════════════════════
+function selGoal(el){document.querySelectorAll('.gopt').forEach(x=>x.classList.remove('active'));el.classList.add('active');calcGoal();}
+function calcGoal(){
+  const T=+document.getElementById('gAmt').value||0, Y=+document.getElementById('gYrs').value||1;
+  const r=+document.getElementById('gRet').value/100||0.12, S=+document.getElementById('gSav').value||0;
+  const mr=r/12, n=Y*12, fvS=S*Math.pow(1+r,Y), gap=Math.max(T-fvS,0);
+  const sip=gap>0?(gap*mr)/(Math.pow(1+mr,n)-1):0;
+  const ls=gap>0?gap/Math.pow(1+r,Y):0;
+  setT('gSIP','₹'+fmt(sip)); setT('gLump','₹'+fmt(ls)); setT('gTot','₹'+fmtCr(T)); setT('gGap','₹'+fmtCr(gap));
+}
+calcGoal();
+
+// ═══════════════════════════════════════════════════
+// NET WORTH
+// ═══════════════════════════════════════════════════
+function calcNW(){
+  const assets=['a1','a2','a3','a4','a5','a6'].reduce((s,id)=>s+(+document.getElementById(id)?.value||0),0);
+  const liab=['l1','l2','l3','l4','l5'].reduce((s,id)=>s+(+document.getElementById(id)?.value||0),0);
+  const net=assets-liab, ratio=assets>0?(net/assets*100):0;
+  setT('nwA','₹'+fmtCr(assets)); setT('nwL','₹'+fmtCr(liab));
+  const ne=document.getElementById('nwN'); if(ne){ne.textContent='₹'+fmtCr(net);ne.style.color=net>=0?'var(--green)':'var(--rose)';}
+  setT('nwR',ratio.toFixed(1)+'%');
+}
+calcNW();
+
+// ═══════════════════════════════════════════════════
+// BUDGET
+// ═══════════════════════════════════════════════════
+const budCats=[
+  {name:'Needs (Housing, Bills, Food)',pct:50,color:'#0d9488'},
+  {name:'Wants (Dining, Entertainment)',pct:30,color:'#4f46e5'},
+  {name:'Savings & Investments',pct:15,color:'#059669'},
+  {name:'Emergency Fund',pct:5,color:'#b45309'},
+];
+function calcBudget(){
+  const inc=+document.getElementById('budInc')?.value||0;
+  let h='';
+  budCats.forEach(c=>{
+    const v=inc*c.pct/100;
+    h+=`<div style="margin-bottom:13px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:0.8rem;color:var(--muted)">${c.name}</span><span style="font-size:0.8rem;font-weight:600">₹${fmt(v)}</span></div><div class="prog-wrap"><div class="prog-bar" style="width:${c.pct*2}%;background:${c.color}"></div></div></div>`;
+  });
+  const bb=document.getElementById('budBreak'); if(bb) bb.innerHTML=h;
+  const br=document.getElementById('budRes'); if(br) br.innerHTML=`<div class="rbig" style="color:var(--green)">₹${fmt(inc*0.20)}</div><div class="rlabel">Monthly toward Savings & Emergency Fund</div>`;
+  drawBudPie(inc);
+  let leg='';
+  budCats.forEach(c=>leg+=`<div class="pie-leg-row"><div class="pie-dot" style="background:${c.color}"></div><div class="pie-leg-lbl">${c.name}</div><div class="pie-leg-val">${c.pct}%</div></div>`);
+  const pl=document.getElementById('pieLeg'); if(pl) pl.innerHTML=leg;
+}
+function drawBudPie(inc){
+  const canvas=document.getElementById('budPie'); if(!canvas) return;
+  const ctx=canvas.getContext('2d'); ctx.clearRect(0,0,200,200);
+  let s=-Math.PI/2;
+  budCats.forEach(c=>{
+    const a=(c.pct/100)*2*Math.PI;
+    ctx.beginPath();ctx.moveTo(100,100);ctx.arc(100,100,85,s,s+a);ctx.closePath();
+    ctx.fillStyle=c.color;ctx.fill();
+    ctx.beginPath();ctx.arc(100,100,54,0,2*Math.PI);ctx.fillStyle='rgba(255,255,255,0.92)';ctx.fill();
+    s+=a;
+  });
+  ctx.font='bold 13px Jost';ctx.textAlign='center';ctx.fillStyle=var2('#0e1b2e');
+  ctx.fillText('Budget',100,96);ctx.fillText('Split',100,113);
+}
+function var2(v){return v;}
+calcBudget();
+
+// ═══════════════════════════════════════════════════
+// TAX
+// ═══════════════════════════════════════════════════
+function taxOld(g,hra,c80,d80,hl,nps){
+  let t=Math.max(g-50000-hra-Math.min(c80,150000)-d80-hl-Math.min(nps,50000),0);
+  let tx=0;
+  if(t>1000000) tx=((t-1000000)*0.30)+(500000*0.20)+(250000*0.10);
+  else if(t>500000) tx=((t-500000)*0.20)+(250000*0.10);
+  else if(t>250000) tx=(t-250000)*0.10;
+  if(t<=500000) tx=0;
+  return Math.round(tx*1.04);
+}
+function taxNew(g){
+  let t=Math.max(g-75000,0), tx=0, rem=t;
+  [[300000,0],[300000,0.05],[300000,0.10],[300000,0.15],[300000,0.20],[Infinity,0.30]].forEach(([lim,r])=>{const s=Math.min(rem,lim);tx+=s*r;rem-=s;});
+  if(t<=700000) tx=0;
+  return Math.round(tx*1.04);
+}
+function calcTax(){
+  const g=+document.getElementById('tInc')?.value||0;
+  const old=taxOld(g,+document.getElementById('tHRA')?.value||0,+document.getElementById('t80c')?.value||0,+document.getElementById('t80d')?.value||0,+document.getElementById('tHL')?.value||0,+document.getElementById('tNPS')?.value||0);
+  const nw=taxNew(g);
+  const best=old<nw?'Old':'New', save=Math.abs(old-nw);
+  setT('tOld','₹'+fmt(old)); setT('tNew','₹'+fmt(nw)); setT('tSave','₹'+fmt(save)); setT('tBest',best+' Regime');
+  const slabs=[{r:'₹0–₹3L',rate:'0%',w:0},{r:'₹3–₹6L',rate:'5%',w:17},{r:'₹6–₹9L',rate:'10%',w:33},{r:'₹9–₹12L',rate:'15%',w:50},{r:'₹12–₹15L',rate:'20%',w:67},{r:'Above ₹15L',rate:'30%',w:100}];
+  const ts=document.getElementById('taxSlabs');
+  if(ts) ts.innerHTML='<div style="font-size:0.74rem;font-weight:600;color:var(--muted);margin-bottom:11px;text-transform:uppercase;letter-spacing:1px">New Regime Tax Slabs</div>'+slabs.map(s=>`<div class="tax-slab"><div><div class="ts-range">${s.r}</div><div class="ts-bar" style="width:${s.w}%"></div></div><div class="ts-rate">${s.rate}</div></div>`).join('');
+}
+calcTax();
+
+// ═══════════════════════════════════════════════════
+// RETIREMENT
+// ═══════════════════════════════════════════════════
+function calcRet(){
+  const age=+document.getElementById('rAge')?.value||30, retAge=+document.getElementById('rRet')?.value||60;
+  const life=+document.getElementById('rLife')?.value||85, exp=+document.getElementById('rExp')?.value||50000;
+  const inf=+document.getElementById('rInf')?.value/100||0.06, grow=+document.getElementById('rGro')?.value/100||0.12;
+  const post=+document.getElementById('rPos')?.value/100||0.07, sav=+document.getElementById('rSav')?.value||0;
+  const yrs=retAge-age, retYrs=life-retAge;
+  const expR=exp*12*Math.pow(1+inf,yrs), rr=(post-inf)/(1+inf);
+  const corpus=rr>0?expR*((1-Math.pow(1+rr,-retYrs))/rr):expR*retYrs;
+  const fvS=sav*Math.pow(1+grow,yrs), need=Math.max(corpus-fvS,0);
+  const mr=grow/12, n=yrs*12, sip=need>0?(need*mr)/(Math.pow(1+mr,n)-1):0;
+  setT('rCorpus','₹'+fmtCr(corpus)); setT('rSIP','₹'+fmt(sip));
+  setT('rIncome','₹'+fmt(expR/12)); setT('rYrs',yrs+' yrs');
+  const tl=document.getElementById('retTL'); if(!tl) return;
+  const steps=[
+    {age,lbl:'Today',val:'Start'},
+    {age:Math.round(age+yrs*0.25),lbl:'25%',val:'₹'+fmtCr(fvStep(sav,sip,grow,yrs*0.25))},
+    {age:Math.round(age+yrs*0.5),lbl:'Halfway',val:'₹'+fmtCr(fvStep(sav,sip,grow,yrs*0.5))},
+    {age:Math.round(age+yrs*0.75),lbl:'75%',val:'₹'+fmtCr(fvStep(sav,sip,grow,yrs*0.75))},
+    {age:retAge,lbl:'Retire! 🎉',val:'₹'+fmtCr(corpus)}
+  ];
+  tl.innerHTML=steps.map((s,i)=>`<div class="ret-step"><div class="ret-dot">${i+1}</div><div class="ret-age">Age ${s.age}</div><div class="ret-val">${s.val}</div><div class="ret-lbl">${s.lbl}</div></div>`).join('');
+}
+function fvStep(P,pmt,r,y){const mr=r/12,n=Math.round(y*12);return P*Math.pow(1+r,y)+pmt*((Math.pow(1+mr,n)-1)/mr);}
+calcRet();
+
+// ═══════════════════════════════════════════════════
+// INSURANCE
+// ═══════════════════════════════════════════════════
+function calcIns(){
+  const inc=+document.getElementById('liInc')?.value||0, yrs=+document.getElementById('liYrs')?.value||0;
+  const loans=+document.getElementById('liLoan')?.value||0, goals=+document.getElementById('liGoal')?.value||0;
+  const ex=+document.getElementById('liEx')?.value||0;
+  const lc=Math.max((inc*yrs*0.7)+loans+goals-ex,0);
+  setT('liCover','₹'+fmtCr(lc));
+  const ln=document.getElementById('liNote'); if(ln) ln.textContent=lc>0?`At age 30, a ₹${fmtCr(lc)} term plan costs approx ₹${fmt(Math.round(lc/1000000*900))}/year.`:'Current coverage appears sufficient.';
+  const city=+document.getElementById('hiCity')?.value||1, mem=+document.getElementById('hiMem')?.value||1;
+  const hAge=+document.getElementById('hiAge')?.value||30, hex=+document.getElementById('hiEx')?.value||0;
+  const base=city===1?2000000:city===2?1500000:1000000;
+  const hc=Math.max((base*(hAge>=60?2:hAge>=45?1.5:1)*Math.ceil(mem/2))-hex,0);
+  setT('hiCover','₹'+fmtCr(hc));
+  const hn=document.getElementById('hiNote'); if(hn) hn.textContent=`For a ${mem}-member family, ₹${fmtCr(hc)} floater recommended. Consider a super top-up plan to reduce premium.`;
+}
+calcIns();
+
+// ═══════════════════════════════════════════════════
+// QUIZ
+// ═══════════════════════════════════════════════════
+const Qs=[
+  {q:"If your portfolio dropped 25% overnight, you would:",opts:["Sell everything immediately","Sell some to limit damage","Hold and wait patiently","Buy more — it's on sale!"],s:[0,1,2,3]},
+  {q:"How long can you lock away this money without needing it?",opts:["Under 1 year","1–3 years","3–7 years","7+ years"],s:[0,1,2,3]},
+  {q:"Your primary investment goal is:",opts:["Preserve capital at all costs","Beat inflation steadily","Build meaningful wealth","Maximise long-term returns"],s:[0,1,2,3]},
+  {q:"How do you feel during a market crash in the news?",opts:["Panic — check portfolio every hour","Worried — review weekly","Calm — review quarterly","Excited — look for opportunities"],s:[0,1,2,3]},
+  {q:"What % of your savings are you comfortable putting in equity?",opts:["0–10%","10–30%","30–60%","60–100%"],s:[0,1,2,3]},
+  {q:"You receive a ₹5 lakh bonus. You would:",opts:["Put it all in FD","Split: FD + some mutual funds","Invest in diversified mutual funds","Majority into high-growth equity"],s:[0,1,2,3]},
+  {q:"How would you describe your current investing experience?",opts:["Complete beginner","I've read about it","I have some active investments","I actively manage my portfolio"],s:[0,1,2,3]}
+];
+const Ps=[
+  {name:"The Guardian",badge:"🛡️",range:[0,6],desc:"Capital preservation is your priority. FDs, PPF, liquid funds, and government bonds are your comfort zone. Consider 10–15% debt mutual funds for inflation protection.",recs:["PPF","Liquid Funds","G-Sec Bonds","FD Laddering"]},
+  {name:"The Steady Saver",badge:"⚖️",range:[7,12],desc:"You want stability with modest growth. A 30/70 equity-debt split suits your temperament. Hybrid conservative funds and Sovereign Gold Bonds align with your style.",recs:["Hybrid Funds","Balanced Advantage","SGB Gold","Short Debt Funds"]},
+  {name:"The Balanced Builder",badge:"🌱",range:[13,17],desc:"You understand that calculated risk creates real wealth. A 60/40 equity-debt split works well. Diversified equity funds, flexi-cap funds, and Nifty ETFs are your tools.",recs:["Flexi-Cap Funds","Nifty 50 ETF","Hybrid Aggressive","REITs"]},
+  {name:"The Growth Seeker",badge:"🚀",range:[18,21],desc:"High risk tolerance and long horizon give you the greatest advantage. 80%+ equity, including mid/small-cap, direct stocks, and international funds can maximise your returns.",recs:["Small-Cap Funds","Direct Stocks","Nasdaq 100 ETF","Mid-Cap Funds"]}
+];
+let qIdx=0, qAns=new Array(7).fill(null);
+function renderQ(){
+  const q=Qs[qIdx];
+  const qb=document.getElementById('qBar'); if(qb) qb.style.width=(qIdx/Qs.length*100)+'%';
+  const qc=document.getElementById('qContent');
+  if(qc) qc.innerHTML=`<div style="font-size:0.74rem;color:var(--muted);margin-bottom:7px">Question ${qIdx+1} of ${Qs.length}</div><div class="quiz-q">${q.q}</div><div class="qopts">${q.opts.map((o,i)=>`<button class="qopt ${qAns[qIdx]===i?'sel':''}" onclick="pickA(${i})">${o}</button>`).join('')}</div>`;
+  const pp=document.getElementById('qPrevBtn'); if(pp) pp.style.display=qIdx>0?'block':'none';
+  const pn=document.getElementById('qNextBtn'); if(pn) pn.textContent=qIdx===Qs.length-1?'See My Profile ✨':'Next →';
+}
+function pickA(i){qAns[qIdx]=i;renderQ();}
+function qNext(){if(qAns[qIdx]===null){alert('Please select an answer.');return;}qIdx<Qs.length-1?(qIdx++,renderQ()):showQResult();}
+function qPrev(){if(qIdx>0){qIdx--;renderQ();}}
+function showQResult(){
+  const total=qAns.reduce((s,a,i)=>s+(a!==null?Qs[i].s[a]:0),0);
+  const p=Ps.find(x=>total>=x.range[0]&&total<=x.range[1])||Ps[3];
+  const qb=document.getElementById('qBar'); if(qb) qb.style.width='100%';
+  const qc=document.getElementById('qContent');
+  if(qc) qc.innerHTML=`<div class="p-res"><div class="p-badge">${p.badge}</div><div class="p-type">${p.name}</div><div class="p-desc">${p.desc}</div><div style="font-size:0.76rem;color:var(--muted);margin-bottom:10px">Score: ${total}/21 · Recommended instruments:</div><div class="p-recs">${p.recs.map(r=>`<span class="p-rec">${r}</span>`).join('')}</div></div>`;
+  const qn=document.getElementById('qNav');
+  if(qn) qn.innerHTML=`<button class="nbtn nn" onclick="resetQ()">Retake Test ↺</button>`;
+}
+function resetQ(){qIdx=0;qAns=new Array(7).fill(null);const qn=document.getElementById('qNav');if(qn)qn.innerHTML=`<button class="nbtn np" onclick="qPrev()" id="qPrevBtn" style="display:none">← Back</button><button class="nbtn nn" onclick="qNext()" id="qNextBtn">Next →</button>`;renderQ();}
+
+// ═══════════════════════════════════════════════════
+// RISK FLAGS
+// ═══════════════════════════════════════════════════
+const flags=[
+  {ico:"🔴",cls:"fr-red",tit:"No Emergency Fund",desc:"Less than 3–6 months expenses in liquid savings. Any shock forces liquidating investments at the wrong time.",key:"ef"},
+  {ico:"🔴",cls:"fr-red",tit:"Investing with Borrowed Money",desc:"Loans or credit cards to invest amplify losses. You owe regardless of market performance.",key:"lev"},
+  {ico:"🔴",cls:"fr-red",tit:"No Term Life Insurance",desc:"If you have dependants and no life cover, their financial security is at serious risk.",key:"life"},
+  {ico:"🟡",cls:"fr-yellow",tit:"No Health Insurance",desc:"One hospitalisation can wipe years of savings. Medical inflation runs at 12%+ per year.",key:"hi"},
+  {ico:"🟡",cls:"fr-yellow",tit:"No Diversification",desc:"100% in one asset, stock, or sector. Concentration risk is one of the most common investor mistakes.",key:"div"},
+  {ico:"🟡",cls:"fr-yellow",tit:"Chasing Last Year's Winners",desc:"Buying recent top-performers almost always means buying at the peak. Mean-reversion is powerful.",key:"chase"},
+  {ico:"🟡",cls:"fr-yellow",tit:"No Written Financial Plan",desc:"Investing without documented goals, timelines, and allocation is navigating without a map.",key:"plan"},
+  {ico:"🔵",cls:"fr-blue",tit:"Over-Trading & High Costs",desc:"Frequent trading incurs STT, brokerage, and STCG taxes. Long-term investing wins after costs.",key:"trade"},
+  {ico:"🔵",cls:"fr-blue",tit:"Ignoring Inflation in Returns",desc:"6% FD with 7% inflation = negative real return. Always measure in inflation-adjusted terms.",key:"inf"},
+  {ico:"🔵",cls:"fr-blue",tit:"No Tax Optimisation",desc:"Ignoring 80C, 80D, NPS, LTCG harvesting means overpaying taxes that could compound into wealth.",key:"tax"},
+];
+const fl=document.getElementById('flagsList');
+if(fl) fl.innerHTML=flags.map(f=>`<div class="flag-row ${f.cls}"><div class="fi">${f.ico}</div><div style="flex:1"><div class="ft">${f.tit}</div><div class="fd">${f.desc}</div></div><label class="fcheck"><input type="checkbox" id="fl_${f.key}" onchange="scoreFlags()"><span>I have this</span></label></div>`).join('');
+function scoreFlags(){
+  const cnt=flags.filter(f=>document.getElementById('fl_'+f.key)?.checked).length;
+  const msgs=['✅ Excellent financial health!','🟡 Minor issues — address soon.','🟠 Moderate risk — act this month.','🔴 High risk — prioritise now.','🚨 Critical — seek professional help.'];
+  setT('flagScore',cnt+' / '+flags.length+' flags');
+  setT('flagMsg',msgs[Math.min(Math.floor(cnt/2),4)]);
+  const fb=document.getElementById('flagBar');
+  if(fb) fb.innerHTML=`<div class="prog-wrap"><div class="prog-bar" style="width:${cnt/flags.length*100}%;background:${cnt<=2?'var(--green)':cnt<=5?'var(--gold)':'var(--rose)'}"></div></div>`;
+}
+scoreFlags();
+
+// ═══════════════════════════════════════════════════
+// SIMULATOR
+// ═══════════════════════════════════════════════════
+function fv(P,pmt,r,n){const mr=r/12;return P*Math.pow(1+r,n)+pmt*((Math.pow(1+mr,n*12)-1)/mr);}
+function runSim(){
+  const I=+document.getElementById('simI')?.value||0, M=+document.getElementById('simM')?.value||0;
+  const Y=+document.getElementById('simY')?.value||1;
+  const yl=document.getElementById('simYL'); if(yl) yl.textContent=Y;
+  const rates=[0.035,0.068,0.085,0.11,0.14];
+  const ids=['sSA','sFD','sDb','sHy','sEq'];
+  rates.forEach((r,i)=>setT(ids[i],'₹'+fmtCr(fv(I,M,r,Y))));
+  drawSimChart(I,M,Y);
+}
+function drawSimChart(init,monthly,years){
+  const canvas=document.getElementById('simCanvas'); if(!canvas) return;
+  const ctx=canvas.getContext('2d');
+  canvas.width=canvas.offsetWidth||760; canvas.height=200;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const rates=[0.035,0.068,0.085,0.11,0.14];
+  const colors=['#94a3b8','#64748b','#2980b9','#4f46e5','#0d9488'];
+  const datasets=rates.map(r=>Array.from({length:years+1},(_,y)=>fv(init,monthly,r,y)));
+  const maxV=Math.max(...datasets[4]);
+  const W=canvas.width,H=200,pL=60,pR=18,pT=16,pB=28,cW=W-pL-pR,cH=H-pT-pB;
+  for(let i=0;i<=4;i++){
+    const y=pT+cH-(i/4)*cH;
+    ctx.strokeStyle='rgba(13,148,136,0.08)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pL,y);ctx.lineTo(pL+cW,y);ctx.stroke();
+    ctx.fillStyle='rgba(122,144,176,0.75)';ctx.font='10px Jost';ctx.textAlign='right';
+    ctx.fillText(fmtCrS(maxV*i/4),pL-5,y+4);
+  }
+  datasets.forEach((data,di)=>{
+    ctx.beginPath();ctx.strokeStyle=colors[di];ctx.lineWidth=di===4?3:1.5;ctx.lineJoin='round';
+    data.forEach((v,i)=>{const x=pL+(i/years)*cW,y=pT+cH-(v/maxV)*cH;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+    ctx.stroke();
+    ctx.save();ctx.globalAlpha=0.07;ctx.fillStyle=colors[di];
+    data.forEach((v,i)=>{const x=pL+(i/years)*cW,y=pT+cH-(v/maxV)*cH;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+    ctx.lineTo(pL+cW,pT+cH);ctx.lineTo(pL,pT+cH);ctx.closePath();ctx.fill();ctx.restore();
+  });
+}
+window.addEventListener('resize', ()=>{if(currentPage==='simulator') runSim();});
+
+// ═══════════════════════════════════════════════════
+// CALCULATORS
+// ═══════════════════════════════════════════════════
+function switchCalc(type,el){
+  document.querySelectorAll('#calcTabs .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active'); renderCalc(type);
+}
+function renderCalc(type){
+  let h='';
+  if(type==='sip'){
+    h=`<div class="card"><div class="g2"><div>
+      <div class="fg"><label>Monthly SIP (₹)</label><input type="number" id="sipA" value="10000" oninput="cSIP()"></div>
+      <div class="fg"><label>Annual Return (%)</label><input type="number" id="sipR" value="12" oninput="cSIP()"></div>
+      <div class="fg"><label>Duration (years)</label><input type="number" id="sipN" value="15" oninput="cSIP()"></div>
+      <div class="fg"><label>Annual Step-Up (%)</label><input type="number" id="sipSt" value="10" oninput="cSIP()"></div>
+    </div><div><div class="rbox" style="height:100%;display:flex;flex-direction:column;gap:16px">
+      <div><div class="rbig" id="sInv">₹0</div><div class="rlabel">Total Invested</div></div>
+      <div><div class="rbig" id="sGain" style="color:var(--indigo)">₹0</div><div class="rlabel">Wealth Gained</div></div>
+      <div><div class="rbig" id="sTot" style="color:var(--green)">₹0</div><div class="rlabel">Maturity Value</div></div>
+      <div><div class="rbig" id="sStep" style="color:var(--gold);font-size:1.4rem">₹0</div><div class="rlabel">With Step-Up SIP</div></div>
+    </div></div></div></div>`;
+  } else if(type==='compound'){
+    h=`<div class="card"><div class="g2"><div>
+      <div class="fg"><label>Principal (₹)</label><input type="number" id="ciP" value="500000" oninput="cCI()"></div>
+      <div class="fg"><label>Annual Rate (%)</label><input type="number" id="ciR" value="12" oninput="cCI()"></div>
+      <div class="fg"><label>Years</label><input type="number" id="ciN" value="20" oninput="cCI()"></div>
+      <div class="fg"><label>Compounding</label><select id="ciF" onchange="cCI()"><option value="1">Annually</option><option value="2">Semi-Annually</option><option value="4">Quarterly</option><option value="12" selected>Monthly</option><option value="365">Daily</option></select></div>
+    </div><div><div class="rbox" style="height:100%;display:flex;flex-direction:column;gap:16px">
+      <div><div class="rbig" id="cTot">₹0</div><div class="rlabel">Final Amount</div></div>
+      <div><div class="rbig" id="cInt" style="color:var(--indigo)">₹0</div><div class="rlabel">Interest Earned</div></div>
+      <div><div class="rbig" id="cMul" style="color:var(--green);font-size:1.8rem">0×</div><div class="rlabel">Wealth Multiplier</div></div>
+    </div></div></div></div>`;
+  } else if(type==='lumpsum'){
+    h=`<div class="card"><div class="g2"><div>
+      <div class="fg"><label>Lump Sum (₹)</label><input type="number" id="lsP" value="1000000" oninput="cLS()"></div>
+      <div class="fg"><label>Annual Return (%)</label><input type="number" id="lsR" value="14" oninput="cLS()"></div>
+      <div class="fg"><label>Years</label><input type="number" id="lsN" value="10" oninput="cLS()"></div>
+    </div><div><div class="rbox" style="height:100%;display:flex;flex-direction:column;gap:16px">
+      <div><div class="rbig" id="lTot">₹0</div><div class="rlabel">Maturity Value</div></div>
+      <div><div class="rbig" id="lGain" style="color:var(--indigo)">₹0</div><div class="rlabel">Absolute Gain</div></div>
+      <div><div class="rbig" id="lMul" style="color:var(--green);font-size:1.8rem">0×</div><div class="rlabel">Multiplier</div></div>
+    </div></div></div></div>`;
+  } else if(type==='emi'){
+    h=`<div class="card"><div class="g2"><div>
+      <div class="fg"><label>Loan Amount (₹)</label><input type="number" id="emP" value="3000000" oninput="cEMI()"></div>
+      <div class="fg"><label>Annual Interest Rate (%)</label><input type="number" id="emR" value="8.5" oninput="cEMI()"></div>
+      <div class="fg"><label>Tenure (years)</label><input type="number" id="emN" value="20" oninput="cEMI()"></div>
+    </div><div><div class="rbox" style="height:100%;display:flex;flex-direction:column;gap:16px">
+      <div><div class="rbig" id="eEMI">₹0</div><div class="rlabel">Monthly EMI</div></div>
+      <div><div class="rbig" id="eTotal" style="color:var(--rose)">₹0</div><div class="rlabel">Total Payment</div></div>
+      <div><div class="rbig" id="eInt" style="color:var(--gold);font-size:1.4rem">₹0</div><div class="rlabel">Total Interest Paid</div></div>
+    </div></div></div></div>`;
+  } else {
+    h=`<div class="card"><div class="g2"><div>
+      <div class="fg"><label>Initial Investment (₹)</label><input type="number" id="cgI" value="100000" oninput="cCAGR()"></div>
+      <div class="fg"><label>Final Value (₹)</label><input type="number" id="cgF" value="350000" oninput="cCAGR()"></div>
+      <div class="fg"><label>Years</label><input type="number" id="cgN" value="5" oninput="cCAGR()"></div>
+    </div><div><div class="rbox" style="height:100%;display:flex;flex-direction:column;gap:16px">
+      <div><div class="rbig" id="cagrV">0%</div><div class="rlabel">CAGR</div></div>
+      <div><div class="rbig" id="cagrA" style="color:var(--indigo)">0%</div><div class="rlabel">Absolute Return</div></div>
+      <div><div class="rbig" id="cagrR" style="color:var(--green);font-size:1.3rem">—</div><div class="rlabel">Performance Rating</div></div>
+    </div></div></div></div>`;
+  }
+  document.getElementById('calcContent').innerHTML=h;
+  if(type==='sip')cSIP();else if(type==='compound')cCI();else if(type==='lumpsum')cLS();else if(type==='emi')cEMI();else cCAGR();
+}
+function cSIP(){
+  const p=+document.getElementById('sipA')?.value||0, r=(+document.getElementById('sipR')?.value||0)/100/12;
+  const n=(+document.getElementById('sipN')?.value||0)*12, st=(+document.getElementById('sipSt')?.value||0)/100;
+  const tot=r>0?p*((Math.pow(1+r,n)-1)/r)*(1+r):p*n, inv=p*n;
+  let stepTot=0,cur=p;
+  for(let y=0;y<n/12;y++){const yr=Math.pow(1+r,12);stepTot=stepTot*yr+cur*((yr-1)/Math.max(r,0.0001));if(y<n/12-1)cur*=(1+st);}
+  setT('sInv','₹'+fmt(inv));setT('sGain','₹'+fmt(tot-inv));setT('sTot','₹'+fmt(tot));setT('sStep','₹'+fmtCr(stepTot));
+}
+function cCI(){
+  const P=+document.getElementById('ciP')?.value||0, r=(+document.getElementById('ciR')?.value||0)/100;
+  const n=+document.getElementById('ciN')?.value||0, f=+document.getElementById('ciF')?.value||12;
+  const tot=P*Math.pow(1+r/f,f*n);
+  setT('cTot','₹'+fmtCr(tot));setT('cInt','₹'+fmtCr(tot-P));setT('cMul',(tot/Math.max(P,1)).toFixed(2)+'×');
+}
+function cLS(){
+  const P=+document.getElementById('lsP')?.value||0, r=(+document.getElementById('lsR')?.value||0)/100;
+  const n=+document.getElementById('lsN')?.value||0, tot=P*Math.pow(1+r,n);
+  setT('lTot','₹'+fmtCr(tot));setT('lGain','₹'+fmtCr(tot-P));setT('lMul',(tot/Math.max(P,1)).toFixed(2)+'×');
+}
+function cEMI(){
+  const P=+document.getElementById('emP')?.value||0, r=(+document.getElementById('emR')?.value||0)/100/12;
+  const n=(+document.getElementById('emN')?.value||0)*12;
+  const emi=r>0?P*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1):P/n;
+  setT('eEMI','₹'+fmt(emi));setT('eTotal','₹'+fmtCr(emi*n));setT('eInt','₹'+fmtCr(emi*n-P));
+}
+function cCAGR(){
+  const I=+document.getElementById('cgI')?.value||1, F=+document.getElementById('cgF')?.value||1;
+  const N=+document.getElementById('cgN')?.value||1;
+  const cagr=(Math.pow(F/I,1/N)-1)*100, abs=((F-I)/I)*100;
+  setT('cagrV',cagr.toFixed(2)+'%');setT('cagrA',abs.toFixed(1)+'%');
+  setT('cagrR',cagr>=20?'🔥 Exceptional':cagr>=14?'🌟 Excellent':cagr>=10?'✅ Good':cagr>=6?'🟡 Average':'🔴 Below Inflation');
+}
+renderCalc('sip');
+
+// ═══════════════════════════════════════════════════
+// LEARN
+// ═══════════════════════════════════════════════════
+const learnData=[
+  [{ico:'💡',tag:'Foundation',tit:'Why Invest?',desc:'Inflation erodes idle money. Investing makes your money grow faster than prices rise. Even small systematic amounts compounded over decades build extraordinary wealth. Time is the most powerful variable — start today.'},{ico:'📊',tag:'Core Concept',tit:'Asset Classes',desc:'Equities, bonds, real estate, gold, cash, and alternatives each have different risk-return profiles. A smart portfolio allocates across multiple classes based on your goals, timeline, and risk tolerance.'},{ico:'⏳',tag:'Critical',tit:'Power of Time',desc:'Starting at 25 vs 35 can result in 3–5× more corpus at retirement. Every year delayed costs far more than any stock pick recovers. Compounding requires patience — not expertise.'}],
+  [{ico:'🏦',tag:'Beginner',tit:'What is a Mutual Fund?',desc:'A mutual fund pools money from thousands of investors. A professional fund manager invests across stocks, bonds, or both. You get diversification, liquidity, and professional management — starting from ₹500/month.'},{ico:'📋',tag:'Essential',tit:'Fund Categories',desc:'Equity funds for long-term growth, debt funds for stability, hybrid for balance, index funds for low-cost broad exposure. Each serves a different purpose in a well-structured portfolio.'},{ico:'📈',tag:'Strategy',tit:'SIP Power',desc:'A Systematic Investment Plan automates monthly investing and averages your cost over market cycles. Rupee cost averaging means you buy more units when markets fall — turning volatility into your ally.'}],
+  [{ico:'📉',tag:'Beginner',tit:'How Stocks Work',desc:'Buying a share means owning a fraction of a real business. Returns come from earnings growth (capital appreciation) and profit distribution (dividends). Prices fluctuate daily — intrinsic value doesn\'t have to.'},{ico:'🔍',tag:'Intermediate',tit:'Fundamental Analysis',desc:'Evaluate P/E ratio, ROE, revenue growth, profit margins, debt-to-equity, and competitive moat. Look for businesses consistently earning >15% ROE with honest, capable management and clear competitive advantages.'},{ico:'🌐',tag:'Practical',tit:'Building a Stock Portfolio',desc:'Start with 15–20 diversified stocks across sectors. Rebalance annually. Reinvest dividends. Avoid trying to time the market — time IN the market beats timing the market over the long run.'}],
+  [{ico:'🏠',tag:'Asset Class',tit:'Real Estate Investing',desc:'Real estate provides rental income + capital appreciation. REITs (Real Estate Investment Trusts) let you invest in real estate from ₹2,000 without buying property — listed on NSE/BSE with quarterly dividends.'},{ico:'📐',tag:'Calculation',tit:'Rental Yield',desc:'Gross rental yield = annual rent / property value × 100. In India, typical yields are 2–3% in metros. After maintenance, vacancy, and taxes, net yield is often 1.5–2%. Evaluate against your opportunity cost.'},{ico:'💼',tag:'Practical',tit:'REITs in India',desc:'Embassy REIT, Mindspace REIT, and Nexus REIT offer commercial real estate exposure. Legally required to distribute 90% of income as dividends. Ideal for income-seeking investors wanting real estate exposure.'}],
+  [{ico:'🥇',tag:'Safe Haven',tit:'Role of Gold',desc:'Gold is a hedge against currency devaluation, geopolitical risk, and equity market crashes. It has near-zero correlation with equities in crisis periods. Ideal 5–15% allocation as portfolio insurance.'},{ico:'📱',tag:'Modern',tit:'Sovereign Gold Bonds',desc:'SGBs issued by RBI offer gold price appreciation PLUS 2.5% annual interest with zero capital gains tax on maturity — the most efficient form of gold investment available in India.'},{ico:'⚖️',tag:'Strategy',tit:'Gold vs Other Assets',desc:'Gold doesn\'t produce earnings or cash flows, so it shouldn\'t be your primary wealth builder. Use it as portfolio insurance (5–15%) alongside equity and debt for genuine diversification.'}],
+  [{ico:'₿',tag:'High Risk',tit:'Understanding Crypto',desc:'Cryptocurrencies are decentralised digital assets with high volatility and speculative value. Bitcoin is increasingly seen as digital gold. Ethereum as programmable financial infrastructure. Both remain highly speculative.'},{ico:'⚠️',tag:'Risk Warning',tit:'Risks & Indian Regulations',desc:'India taxes crypto at 30% flat + 1% TDS on transactions. Extreme volatility (50–80% drawdowns are common), regulatory uncertainty, and exchange risk make crypto unsuitable as a core holding. Max 2–5% allocation.'},{ico:'🎯',tag:'If You Invest',tit:'Responsible Crypto',desc:'Use only regulated Indian exchanges. Never invest more than you can afford to lose completely. Dollar-cost average rather than lump sum. Consider hardware wallets for significant holdings. Never use leverage.'}],
+  [{ico:'🔄',tag:'Advanced',tit:'Asset Allocation',desc:'Determine your equity:debt:gold ratio based on age, goals, and risk tolerance. 100-minus-age in equity is a starting point. Rebalance annually when allocation drifts >5% — this enforces buy-low, sell-high discipline.'},{ico:'🌍',tag:'Advanced',tit:'International Diversification',desc:'Investing in US markets via Nasdaq 100 ETF, S&P 500 fund, or Motilal Oswal Nasdaq 100 FoF provides currency diversification and exposure to global tech leaders unavailable on Indian exchanges.'},{ico:'📊',tag:'Tax Strategy',tit:'Tax Loss Harvesting',desc:'Systematically realise losses to offset STCG/LTCG gains. Equity LTCG above ₹1.25L taxed at 12.5%. Harvesting losses each financial year reduces your effective tax rate significantly over a lifetime of investing.'}]
+];
+function switchLearn(idx,el){
+  document.querySelectorAll('#learnTabs .tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
+  const d=learnData[idx];
+  document.getElementById('learnContent').innerHTML=`<div class="g3 fade-up">${d.map(it=>`<div class="lcard"><div class="l-ico">${it.ico}</div><div class="l-tit">${it.tit}</div><div class="l-desc">${it.desc}</div><span class="l-tag">${it.tag}</span></div>`).join('')}</div>`;
+}
+switchLearn(0, null);
+
+// ═══════════════════════════════════════════════════
+// PSYCHOLOGY
+// ═══════════════════════════════════════════════════
+const psychData=[
+  {e:"😨",t:"Loss Aversion",d:"Losses feel 2× worse than equivalent gains feel good. This causes holding losers too long and selling winners too early. Predetermined rules and systematic rebalancing are the only reliable antidote."},
+  {e:"🐑",t:"Herd Mentality",d:"Buying at market peaks and selling at bottoms is how retail investors consistently underperform. Contrarianism based on fundamentals — not emotion — beats following the crowd in the long run."},
+  {e:"🔮",t:"Overconfidence",d:"Studies show 80%+ of investors believe they're above-average. Most fund managers fail to beat index funds. Overconfidence leads to under-diversification, excessive trading, and unnecessary risk-taking."},
+  {e:"📌",t:"Anchoring Bias",d:"Fixating on your purchase price or a stock's 52-week high is irrational. Those numbers have zero relevance to future performance. Value a stock on its future earnings power, not its price history."},
+  {e:"🪞",t:"Confirmation Bias",d:"We seek information confirming what we already believe and dismiss contradictions. Before investing, actively seek out the strongest counter-arguments. Red-teaming your thesis makes it dramatically more robust."},
+  {e:"⏰",t:"Present Bias",d:"We heavily discount the future. Automation is the only reliable solution — set up auto-SIPs so present bias can't interfere with your long-term wealth-building decisions."},
+  {e:"📉",t:"Recency Bias",d:"After a bull run, investors assume it will continue. After crashes, fear dominates. Markets are mean-reverting. Recency bias causes people to buy high and sell low — the exact opposite of rational investing."},
+  {e:"🎲",t:"Gambler's Fallacy",d:"If a stock falls 5 days in a row, it's not 'due' for a recovery. Each period is independent. Investment decisions must be based on business fundamentals and valuation — never on price-action patterns."},
+  {e:"🏆",t:"Narrative Fallacy",d:"Compelling stories about companies can make investors pay irrational prices. Always evaluate the valuation alongside the narrative. At the right price, even a mediocre business can be a great investment."},
+];
+function renderPsych(){
+  const g=document.getElementById('psychGrid');
+  if(g) g.innerHTML=psychData.map(p=>`<div class="pscard"><div class="ps-e">${p.e}</div><div class="ps-t">${p.t}</div><div class="ps-d">${p.d}</div></div>`).join('');
+}
+renderPsych();
+
+// ═══════════════════════════════════════════════════
+// INIT HOME
+// ═══════════════════════════════════════════════════
+// Force home page visible
+document.getElementById('p-home').style.display = 'block';
+</script>
+</body>
+</html>
